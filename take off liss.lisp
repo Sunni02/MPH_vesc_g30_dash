@@ -1,27 +1,35 @@
-; G30 dashboard compability lisp script v1.0 by AKA13 and 1zuna and eddited by James
+; G30 dashboard compatibility lisp script v1.0 by AKA13 and 1zuna and edited by James --- BETA
 ; UART Wiring: red=5V black=GND yellow=COM-TX (UART-HDX) green=COM-RX (button)+3.3V with 1K Resistor
 ; Guide (German): https://rollerplausch.com/threads/vesc-controller-einbau-1s-pro2-g30.6032/
 ; Tested on VESC 6.05 on G30D w/ MKS 84100HP and MP2 300A VESC
 
 ; -> User parameters (change these to your needs)
 (def software-adc 1)
-(def min-adc-throttle 0.1)
+(def min-adc-throttle 0.1) 
 (def min-adc-brake 0.1)
+
+; button timing adjustment 
 (def button-debounce-time 0.03)
 (def single-press-delay 0.2)
 (def long-press-time 6000)
 (def double-press-time 2500)
+
+; dash setup
 (def startup-mode 1) ; 1 = drive, 2 = eco, 4 = sport
 (def bShowMPH 1) ; Set to 1 for mph, 0 for km/h
-(def conv (if (= bShowMPH 1) 2.237 3.6)) ;meters per sec to kmh 3.6 or mph 2.23
-(def show-batt-in-idle 1)
-(def min-speed -1)
-(def boost 1.2) ;set boost factor for under speed of 5 20%
-(def button-safety-speed (/ 0.1 conv)) ; disabling button above 0.1 km/h (due to safety reasons)
+(def conv (if (= bShowMPH 1) 2.237 3.6)) ; meters per sec to kmh 3.6 or mph 2.23
+(def show-batt-in-idle 1) ; -does not work
+(def min-speed -1) ; set minimum speed to start motor
+(def button-safety-speed (/ 0.1 conv)) ; disabling button above 0.1 km/h (due to bugginess)
+
+; Takeoff assistant
+(def boost 1.2) ; set boost factor for under speed of 5 20% increases wattage bt %
+
 ; basic battery level detection 
-(def max-voltage 42.0)
-(def min-voltage 30.0)
-; Speed modes (kmh/mph watts, current scale)
+(def max-voltage 42.0) max battery voltage
+(def min-voltage 30.0) min battery voltage
+
+; Speed modes (set speed limit kmh/mph,  watts, current scale)
 (def eco-speed (/ 7 conv))
 (def eco-current 0.6)
 (def eco-watts 400)
@@ -34,8 +42,6 @@
 (def sport-current 1.0)
 (def sport-watts 700)
 (def sport-fw 30)
-
-; Takeoff assistant
 
 ; Secret speed modes. To enable, press the button 2 times while holding break and throttle at the same time.
 (def secret-enabled 1)
@@ -52,7 +58,7 @@
 (def secret-sport-watts 1500000)
 (def secret-sport-fw 10)
 
-; -> Initialization
+; -> Initialization (code begins here (touch if u dare)
 
 ; Load VESC CAN code server
 (import "pkg@://vesc_packages/lib_code_server/code_server.vescpkg" 'code-server)
@@ -92,10 +98,10 @@
     (app-adc-detach 3 1)
     (app-adc-detach 3 0)
 )
-(def brake-threshold 0.53) ; Brake threshold value
+(def brake-threshold 0.53) ; Brake min threshold value
 
 
-(defun adc-input(buffer) ; Frame 0x65
+(defun adc-input(buffer) ; Frame 0x65 ;throttle control
     {
         (let ((current-speed (* (get-speed) conv))
             (throttle (/(bufget-u8 uart-buf 5) 77.2)) ; 255/3.3 = 77.2
@@ -124,7 +130,7 @@
         )
     }
 )
-(defun handle-features()
+(defun handle-features() ;on off code
     {
         (if (or (or (= off 1) (= lock 1) (< (* (get-speed) conv) min-speed)))
             (if (not (app-is-output-disabled)) ; Disable output when scooter is turned off
@@ -156,22 +162,22 @@
     }
 )
 
-(defun update-dash(buffer) ; Frame 0x64
+(defun update-dash(buffer) ; Frame 0x64 dash code section
     {
         (var current-speed (* (l-speed) conv))
         (var battery (get-battery-level))
 
         ; mode field (1=drive, 2=eco, 4=sport, 8=charge, 16=off, 32=lock)
-(if (= off 1)
-    (bufset-u8 tx-frame 7 16)
-    (if (= lock 1)
-        (bufset-u8 tx-frame 7 32) ; lock display
-        (if (or (> (get-temp-fet) 60) (> (get-temp-mot) 60)) ; temp icon will show up above 60 degree
-            (bufset-u8 tx-frame 7 (+ 128 speedmode))
-            (bufset-u8 tx-frame 7 speedmode)
-        )            
-    )
-)
+        (if (= off 1)
+            (bufset-u8 tx-frame 7 16)
+            (if (= lock 1)
+                (bufset-u8 tx-frame 7 32) ; lock display
+                (if (or (> (get-temp-fet) 60) (> (get-temp-mot) 60)) ; temp icon will show up above 60 degree
+                    (bufset-u8 tx-frame 7 (+ 128 speedmode))
+                    (bufset-u8 tx-frame 7 speedmode)
+                )            
+            )
+        )
                 
         ; batt field
         (bufset-u8 tx-frame 8 battery)
@@ -204,12 +210,13 @@
                 (bufset-u8 tx-frame 11 battery))
             (bufset-u8 tx-frame 11 current-speed)
         )
-        
-      ; Set bFlags field to 64 when bShowMPH is 1
-(if (= bShowMPH 1)
-    (bufset-u8 tx-frame 7 (bitwise-or (bufget-u8 tx-frame 7) 64)) ; mph
-    (bufset-u8 tx-frame 7 (bufget-u8 tx-frame 7)) ; km/h
-)
+
+        ;mph/kmh feild
+        ; Set bFlags field to 64 when bShowMPH is 1
+        (if (= bShowMPH 1)
+        (bufset-u8 tx-frame 7 (bitwise-or (bufget-u8 tx-frame 7) 64)) ; mph
+        (bufset-u8 tx-frame 7 (bufget-u8 tx-frame 7)) ; km/h
+        )
                 
         ; error field
         (bufset-u8 tx-frame 12 (get-fault))
@@ -269,7 +276,7 @@
     }
 )
 
-(defun handle-button()
+(defun handle-button() 
   (if (= presses 1) ; single press
     (if (= off 1) ; is it off? turn on scooter again
         {
@@ -361,7 +368,7 @@
                 ((= speedmode 4) sport-fw))))
         (configure-speed speed watts current fw)))
 
-(defun configure-speed(speed watts current fw)
+(defun configure-speed(speed watts current fw) ;configures power
     {
         (if (< (* (get-speed) conv) 5)
             (set-param 'l-watt-max (* watts boost)) ; Boost wattage by 20% if speed is under 5
@@ -385,7 +392,7 @@
     }
 )
 
-(defun l-speed()
+(defun l-speed() ;gets speed
     {
         (var l-speed (get-speed))
         (loopforeach i (can-list-devs)
@@ -401,7 +408,7 @@
     }
 )
 
-(defun button-logic()
+(defun button-logic() ;revamped button pressing sstuff
     {
         ; Assume button is not pressed by default
         (var buttonold 0)
@@ -467,7 +474,7 @@
                         (if is-active
                             (progn
                                 (sleep 0.03) 
-                                (handle-button) ; handle single press
+                                (handle-button) ; handle single-press
                             )
                         )
                         (reset-button) ; reset button
@@ -494,7 +501,7 @@
   }
 )
 
-(defun get-battery-level()
+(defun get-battery-level() ;battery level linear calc 
     {
         (var vin (get-vin))
         (var battery-level (* (/ (- vin min-voltage) (- max-voltage min-voltage)) 100))
