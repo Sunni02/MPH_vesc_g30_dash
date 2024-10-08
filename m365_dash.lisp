@@ -2,7 +2,7 @@
 ; UART Wiring: red=5V black=GND yellow=COM-TX (UART-HDX) green=COM-RX (button)+3.3V with 1K Resistor
 ; Guide (German): https://rollerplausch.com/threads/vesc-controller-einbau-1s-pro2-g30.6032/
  
-; -> User parameters (change these to your needs)
+; -> User parameters (change these to your needs) 
 (def software-adc 1)
 (def min-adc-throttle 0.1)
 (def min-adc-brake 0.1)
