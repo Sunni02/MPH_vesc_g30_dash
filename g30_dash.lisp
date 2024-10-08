@@ -1,4 +1,4 @@
-; G30 dashboard compability lisp script v1.0 by AKA13 and 1zuna and eddited by James
+; G30 dashboard compatibility lisp script v1.0 by AKA13 and 1zuna and edited by James
 ; UART Wiring: red=5V black=GND yellow=COM-TX (UART-HDX) green=COM-RX (button)+3.3V with 1K Resistor
 ; Guide (German): https://rollerplausch.com/threads/vesc-controller-einbau-1s-pro2-g30.6032/
 ; Tested on VESC 6.05 on G30D w/ MKS 84100HP and MP2 300A VESC
@@ -34,7 +34,7 @@
 (def sport-watts 900)
 (def sport-fw 25)
 
-; Secret speed modes. To enable, press the button 2 times while holding break and throttle at the same time.
+; Secret speed modes. To enable, press the button 2 times while holding brake and throttle at the same time.
 (def secret-enabled 1)
 (def secret-eco-speed (/ 27 conv))
 (def secret-eco-current 0.8)
