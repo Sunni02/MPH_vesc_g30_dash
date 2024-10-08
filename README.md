@@ -1,6 +1,6 @@
-# VESC M365 Dash
+# VESC M365/G30 Dash
 Allows you to connect your XIAOMI or NINEBOT display to VESC controller.
-
+forked from https://github.com/m365fw/vesc_m365_dash 
 ## How
 Do you want to use your Xiaomi or NineBot BLE with a VESC controller? This is the right place for you! \
 Read one of the guides below to get started.
@@ -20,26 +20,31 @@ If you are running **VESC 6.05**, use these:
 <span style="color:rgb(209, 213, 216);">Black </span>to GND \
 <span style="color:rgb(250, 197, 28);">Yellow </span>to TX (UART-HDX) \
 <span style="color:rgb(97, 189, 109);">Green </span>to RX (Button) \
-1k Ohm Resistor from <span style="color:rgb(251, 160, 38);">3.3V</span> to <span style="color:rgb(97, 189, 109);">RX (Button)</span>
+revised 470R resistor between 3.3v and RX and a small capacitor on 3.3v+GND
 
 ![image](guide/imgs/23999.png)
 
 ## Features
 - [x] Multiple speed modes (Press twice)
-- [x] Secret speed modes (Hold throttle and brake and press twice)
-- [x] Lock mode with beeping and braking (Press twice while holding break)
-- [x] Motor start speed feature (More secure)
-- [x] Shutdown feature (Long press to turn off)
-- [x] Battery Idle % on Secret Sport Mode
-- [x] Temperature notification icon at 60°C
-
-Features to be added:
-- [ ] App communication
-- [ ] More unlock combinations
+- [x] Secret speed modes (Hold throttle and brake and press twice) - untested
+- [x] Lock mode with beeping and braking (Press twice while holding break) -untested
+- [x] Motor start speed feature (More secure) - set at -1 
+- [x] Shutdown feature (Long press to turn off) 
+- [x] Battery Idle % on Secret Sport Mode - untested 
+- [x] Temperature notification icon at 60°C - untested
+## James's changes
+- [x] reworked button logic
+- [x] configurable mph, or kmh mode
+- [x] brake overrides throttle failsafe
+- [x] basic linear battery level
+- [ ] easy vesc profile changes
+- [ ] auto timeout shut down
+- [ ] repair bugs
+Features to be added
+not sure let me know
 
 ## Fixed to be done
-- [x] ~~Figure out why 0x64 packets are not being read. (on my setup)~~ (Can be ignored due to the fact that we do not have to receive any 0x64 packets to sent our own 0x64 back)
-- [x] ~~Figure out why button reading is randomly~~ (can be fixed with 470R resistor between 3.3v and RX and capacitor on 3.3v+GND)
+lights turn off randomly when riding.
 
 ## Tested on
 ### BLEs
