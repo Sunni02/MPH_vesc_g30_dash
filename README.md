@@ -40,7 +40,7 @@ revised 470R resistor between 3.3v and RX and a small capacitor on 3.3v+GND
 - [ ] easy vesc profile changes
 - [ ] auto timeout shut down
 - [ ] repair bugs
-Features to be added
+## Features to be added
 - [ ] take off boost in the works
 - [ ] not sure let me know
 
