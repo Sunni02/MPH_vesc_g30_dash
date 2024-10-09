@@ -7,6 +7,7 @@ Read one of the guides below to get started.
 
 - [DE Guide](/guide/DE.md)
 - [German Rollerplausch Guide](https://rollerplausch.com/threads/vesc-controller-einbau-1s-pro2-g30.6032/)
+- coming soon _sunni's guide
 
 ## Which version should I use?
 
@@ -32,25 +33,27 @@ revised 470R resistor between 3.3v and RX and a small capacitor on 3.3v+GND
 - [x] Shutdown feature (Long press to turn off) 
 - [x] Battery Idle % on Secret Sport Mode - untested 
 - [x] Temperature notification icon at 60°C - untested
-## James's changes
-- [x] reworked button logic
+## Sunni's changes
+- [x] reworked button logic (fixes ghost button)
 - [x] configurable mph, or kmh mode
 - [x] brake overrides throttle failsafe
-- [x] basic linear battery level
-- [ ] easy vesc profile changes
+- [x] basic linear battery level indicator
+- [x] take off boost
+- [ ] easy vesc profile change
 - [ ] auto timeout shut down
 - [ ] repair bugs
 ## Features to be added
-- [ ] take off boost in the works
 - [ ] not sure let me know
 
 ## Fixed to be done
 lights turn off randomly when riding.
 
 ## Tested on
+
 ### BLEs
 - Clone M365 PRO Dashboard ([AliExpress](https://s.click.aliexpress.com/e/_9JHFDN))
 - Original DE-Edition PRO 2 Dashboard
+- g30 ble
 
 ### VESCs
 - Ubox (Best choice):
