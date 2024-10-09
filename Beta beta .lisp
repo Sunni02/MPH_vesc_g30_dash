@@ -1,4 +1,4 @@
-; G30 dashboard compatibility lisp script v1.0 by AKA13 and 1zuna and edited by James --- BETA
+; G30 dashboard compatibility lisp script v1.0 by AKA13 and 1zuna and edited by sunni --- BETA
 ; UART Wiring: red=5V black=GND yellow=COM-TX (UART-HDX) green=COM-RX (button)+3.3V with 1K Resistor
 ; Guide (German): https://rollerplausch.com/threads/vesc-controller-einbau-1s-pro2-g30.6032/
 ; Tested on VESC 6.05 on G30D w/ MKS 84100HP and MP2 300A VESC
