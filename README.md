@@ -23,7 +23,8 @@ If you are running **VESC 6.05**, use these:
 <span style="color:rgb(97, 189, 109);">Green </span>to RX (Button) \
 revised 470R resistor between 3.3v and RX and a small capacitor on 3.3v+GND
 
-![image](guide/imgs/23999.png)
+![image](https://github.com/user-attachments/assets/2fabf637-1208-42c0-b92d-d7dedeaddf67)
+
 
 ## Features
 - [x] Multiple speed modes (Press twice)
