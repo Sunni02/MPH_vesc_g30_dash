@@ -28,8 +28,8 @@
 (def boost 1.2) ; set boost factor for under speed of 10 20% increases wattage 
 
 ; basic battery level detection 
-(def max-voltage 42.0) max battery voltage
-(def min-voltage 30.0) min battery voltage
+(def max-voltage 42.0) ; max battery voltage
+(def min-voltage 30.0) ; min battery voltage
 
 ; Speed modes (set speed limit kmh/mph,  watts, current scale)
 (def eco-speed (/ 10 conv))
