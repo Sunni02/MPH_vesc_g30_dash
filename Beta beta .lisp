@@ -20,28 +20,28 @@
 (def conv (if (= bShowMPH 1) 2.237 3.6)) ; meters per sec to kmh 3.6 or mph 2.23
 (def show-batt-in-idle 1) ; -does not work
 (def min-speed -1) ; set minimum speed to start motor
-(def button-safety-speed (/ 0.1 conv)) ; disabling button above 0.1 km/h (due to bugginess)
+(def button-safety-speed (/ 20 conv)) ; if you want to disable the button above a certain speed. 
 
 ; Takeoff assistant
-(def boost 1.2) ; set boost factor for under speed of 5 20% increases wattage bt %
+(def boost 1.2) ; set boost factor for under speed of 10 20% increases wattage 
 
 ; basic battery level detection 
 (def max-voltage 42.0) max battery voltage
 (def min-voltage 30.0) min battery voltage
 
 ; Speed modes (set speed limit kmh/mph,  watts, current scale)
-(def eco-speed (/ 7 conv))
+(def eco-speed (/ 10 conv))
 (def eco-current 0.6)
 (def eco-watts 400)
 (def eco-fw 0)
-(def drive-speed (/ 17 conv))
+(def drive-speed (/ 20 conv))
 (def drive-current 0.7)
-(def drive-watts 500)
+(def drive-watts 700)
 (def drive-fw 0)
 (def sport-speed (/ 30 conv))
 (def sport-current 1.0)
-(def sport-watts 700)
-(def sport-fw 30)
+(def sport-watts 900)
+(def sport-fw 25)
 
 ; Secret speed modes. To enable, press the button 2 times while holding break and throttle at the same time.
 (def secret-enabled 1)
@@ -370,7 +370,7 @@
 
 (defun configure-speed(speed watts current fw) ;configures power
     {
-        (if (< (* (get-speed) conv) 5)
+        (if (< (* (get-speed) conv) 10)
             (set-param 'l-watt-max (* watts boost)) ; Boost wattage by 20% if speed is under 5
             (set-param 'l-watt-max watts) ; Revert to original wattage if speed is 5 or above
         )
