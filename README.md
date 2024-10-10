@@ -27,21 +27,21 @@ revised 470R resistor between 3.3v and RX and a small capacitor on 3.3v+GND
 
 
 ## Features
-- [x] Multiple speed modes (Press twice)
-- [x] Secret speed modes (Hold throttle and brake and press twice) - untested
-- [x] Lock mode with beeping and braking (Press twice while holding break) -untested
-- [x] Motor start speed feature (More secure) - set at -1 
+- [x] Multiple speed modes (Press twice) 
+- [x] Secret speed modes (Hold throttle and brake and press twice) - vanilla
+- [x] Lock mode with beeping and braking (Press twice while holding break) -vanilla
+- [x] Motor start speed feature (More secure) 
 - [x] Shutdown feature (Long press to turn off) 
-- [x] Battery Idle % on Secret Sport Mode - untested 
-- [x] Temperature notification icon at 60°C - untested
+- [x] Battery Idle % - beta, set to 1 - vanilla (on secret sport mode) 
+- [x] Temperature notification icon at 60°C 
 ## Sunni's changes
-- [x] reworked button logic (fixes ghost button)
-- [x] configurable mph, or kmh mode
-- [x] brake overrides throttle failsafe
-- [x] basic linear battery level indicator
-- [x] take off boost
+- [x] reworked button logic (fixes ghost button) -beta
+- [x] configurable mph, or kmh mode - beta
+- [x] brake overrides throttle failsafe -beta
+- [x] basic linear battery level indicator -beta
+- [x] take off boost -beta
+- [x] auto timeout shut down -beta
 - [ ] easy vesc profile change
-- [ ] auto timeout shut down
 - [ ] repair bugs
 ## Features to be added
 - [ ] not sure let me know
@@ -74,7 +74,10 @@ lights turn off randomly when riding.
 - More recommended VESCs:
     - MP2 300A 100V/150V VESC ([GitHub](https://github.com/badgineer/MP2-ESC) - DIY)
     - and many more... use whatever you like.
-
+      
+### Unsupported VESC'S     
+- ubox lite
+  
 #### Requirements on VESC
 Requires 6.05 VESC firmware. \
 Can be found here: https://vesc-project.com/
