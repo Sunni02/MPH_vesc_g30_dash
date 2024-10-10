@@ -4,9 +4,11 @@
 ; Tested on VESC 6.05 on G30D w/ MKS 84100HP and MP2 300A VESC
 
 ; -> User parameters (change these to your needs)
-(def software-adc 1)
-(def min-adc-throttle 0.1) 
-(def min-adc-brake 0.1)
+
+(def software-adc 1) ;set to 1 to use ble throttle control set to 0 for direct wired throttle
+(def min-adc-thr 0.1) ; throttle max value
+(def min-adc-brake 0.1) ;throttle min value
+(def brake-threshold 0.54) ; Brake threshold value for when brakes override throttle
 
 ; button timing adjustment 
 (def button-debounce-time 0.03)
@@ -17,46 +19,38 @@
 ; dash setup
 (def startup-mode 1) ; 1 = drive, 2 = eco, 4 = sport
 (def bShowMPH 1) ; Set to 1 for mph, 0 for km/h
-(def conv (if (= bShowMPH 1) 2.237 3.6)) ; meters per sec to kmh 3.6 or mph 2.23
-(def show-batt-in-idle 1) ; -does not work
+(def conv (if (= bShowMPH 1) 2.237 3.6)) ; (don't touch) meters per sec to kmh 3.6 or mph 2.23
+(def show-batt-in-idle 1) ; set to 0 for off, 1 for on
+
+; safety speed
 (def min-speed -1) ; set minimum speed to start motor
 (def button-safety-speed (/ 20 conv)) ; if you want to disable the button above a certain speed. 
 
-; Takeoff assistant
+; Takeoff boost
 (def boost 1.2) ; set boost factor for under speed of 10 20% increases wattage 
 
 ; basic battery level detection 
-(def max-voltage 42.0) max battery voltage
-(def min-voltage 30.0) min battery voltage
+(def max-voltage 42.0) ; max battery voltage
+(def min-voltage 30.0) ; min battery voltage
+
+;shut down timer
+(def tout 7) ;set to however many minutes you want till it automatically turns off (basic timmer turns on only when speed is 0)
 
 ; Speed modes (set speed limit kmh/mph,  watts, current scale)
 (def eco-speed (/ 10 conv))
 (def eco-current 0.6)
 (def eco-watts 400)
 (def eco-fw 0)
+
 (def drive-speed (/ 20 conv))
 (def drive-current 0.7)
 (def drive-watts 700)
 (def drive-fw 0)
+
 (def sport-speed (/ 30 conv))
 (def sport-current 1.0)
 (def sport-watts 900)
 (def sport-fw 25)
-
-; Secret speed modes. To enable, press the button 2 times while holding break and throttle at the same time.
-(def secret-enabled 1)
-(def secret-eco-speed (/ 27 conv))
-(def secret-eco-current 0.8)
-(def secret-eco-watts 1200)
-(def secret-eco-fw 0)
-(def secret-drive-speed (/ 47 conv))
-(def secret-drive-current 0.9)
-(def secret-drive-watts 1500)
-(def secret-drive-fw 0)
-(def secret-sport-speed (/ 1000 conv)) ; 1000 km/h easy
-(def secret-sport-current 1.0)
-(def secret-sport-watts 1500000)
-(def secret-sport-fw 10)
 
 ; -> Initialization (code begins here (touch if u dare)
 
@@ -67,6 +61,7 @@
 ; Packet handling
 (uart-start 115200 'half-duplex)
 (gpio-configure 'pin-rx 'pin-mode-in-pu)
+
 (define tx-frame (array-create 15))
 (bufset-u16 tx-frame 0 0x5AA5) ;Ninebot protocol
 (bufset-u8 tx-frame 2 0x06) ;Payload length is 5 bytes
@@ -74,8 +69,8 @@
 (bufset-u16 tx-frame 5 0x6400) ; Packet is from ESC to BLE
 (def uart-buf (array-create 64))
 
-; Button handling
 
+; Button handling
 (def presstime (systime))
 (def presses 0)
 
@@ -86,22 +81,42 @@
 (def light 0)
 (def unlock 0)
 
-; timeout
-(define secs-left 0)
-(define last-action-time (systime))
-
 ; Sound feedback
-
 (def feedback 0)
+(def beep-time 1)
 
 (if (= software-adc 1)
     (app-adc-detach 3 1)
     (app-adc-detach 3 0)
 )
-(def brake-threshold 0.53) ; Brake min threshold value
+
+(defun beep(time count)
+    {
+        (set 'beep-time time)
+        (set 'feedback count)
+    }
+)
+
+(define secs-left 0)
+(define last-action-time (systime))
 
 
-(defun adc-input(buffer) ; Frame 0x65 ;throttle control
+; timeout
+(loopwhile-thd 100 t {
+       
+        (if (> secs-left (* tout 60));timeout
+            (if (= off 0)
+                (shut-down-ble)
+            )
+        )
+        ;(print "Timer: " secs-left)
+        (sleep 0.05)
+})
+
+
+;adc code
+
+(defun adc-input(buffer) ; Frame 0x65
     {
         (let ((current-speed (* (get-speed) conv))
             (throttle (/(bufget-u8 uart-buf 5) 77.2)) ; 255/3.3 = 77.2
@@ -126,10 +141,27 @@
                 (if (>= brake brake-threshold)
                     (app-adc-override 0 0)
                     (app-adc-override 0 throttle))
-            }
+                    
+                    ;Timeout timmer
+                    
+                    (if (= off 0)
+            (if (> current-speed 1)
+                (setvar 'last-action-time (systime))
+            
+        
+               (if (= off 0)
+            (setvar 'secs-left (secs-since last-action-time)))
+            
+                 )
+              )      
+           }
         )
     }
 )
+
+   
+   
+
 (defun handle-features() ;on off code
     {
         (if (or (or (= off 1) (= lock 1) (< (* (get-speed) conv) min-speed)))
@@ -145,7 +177,7 @@
                 }
                 
             )
-            (if (app-is-output-disabled) ; Enable output when scooter is turned on
+            (if (app-is-output-disabled) ; Enable output when the scooter is turned on
                 (app-disable-output 0)
             )
         )
@@ -182,12 +214,12 @@
         ; batt field
         (bufset-u8 tx-frame 8 battery)
 
-        ; light field
+        ; light field 
         (if (= off 0)
             (bufset-u8 tx-frame 9 light)
             (bufset-u8 tx-frame 9 0)
-        )
-                
+        )   
+
         ; beep field
         (if (= lock 1)
             (if (> current-speed min-speed)
@@ -204,9 +236,9 @@
         
 
         ; speed field
-        (if (= (+ show-batt-in-idle unlock) 2)
+        (if (= (+ show-batt-in-idle unlock) 1)
             (if (> current-speed 1)
-                (bufset-u8 tx-frame 11 current-speed)
+            (bufset-u8 tx-frame 11 current-speed)
                 (bufset-u8 tx-frame 11 battery))
             (bufset-u8 tx-frame 11 current-speed)
         )
@@ -222,7 +254,6 @@
         (bufset-u8 tx-frame 12 (get-fault))
 
         ; calc crc
-
         (var crcout 0)
         (looprange i 2 13
         (set 'crcout (+ crcout (bufget-u8 tx-frame i))))
@@ -249,8 +280,8 @@
 
                             (let ((code (bufget-u8 uart-buf 2)) (checksum (bufget-u16 uart-buf (+ len 4))))
                                 {
-                                    (looprange i 0 (+ len 4) (set 'crc (+ crc (bufget-u8 uart-buf i))))    
-                                
+                                    (looprange i 0 (+ len 4) (set 'crc (+ crc (bufget-u8 uart-buf i))))
+
                                     (if (= checksum (bitwise-and (+ (shr (bitwise-xor crc 0xFFFF) 8) (shl (bitwise-xor crc 0xFFFF) 8)) 65535)) ;If the calculated checksum matches with sent checksum, forward comman
                                         (handle-frame code)
                                     )
@@ -276,28 +307,35 @@
     }
 )
 
+(defun turn-on-ble()
+    {
+        
+        (apply-mode) ; Apply mode on start-up
+        (set 'last-action-time (systime))
+        (set 'feedback 1) ; beep feedback
+        (set 'unlock 0) ; Disable unlock on turn off
+        (set 'off 0) ; turn on
+       
+    }
+)
+
 (defun handle-button() 
   (if (= presses 1) ; single press
-    (if (= off 1) ; is it off? turn on scooter again
-        {
-            (set 'off 0) ; turn on
-            (set 'feedback 1) ; beep feedback
-            (set 'unlock 0) ; Disable unlock on turn off
-            (apply-mode) ; Apply mode on start-up
-            (stats-reset) ; reset stats when turning on
-        }
+    (if (= off 1) ; is it off? turn on the scooter again
+            {
+                (turn-on-ble)
+            }
         (progn
             (set 'light (bitwise-xor light 1)) ; toggle light
-            (sleep 0.1) ;add small delay
+            (sleep 0.1) ;add a small delay
             (set 'presses 0) ; reset presses
         )
     )
         (if (>= presses 2) ; double press
             {
                 (if (> (get-adc-decoded 1) min-adc-brake) ; if brake is pressed
-                    (if (and (= secret-enabled 1) (> (get-adc-decoded 0) min-adc-throttle))
+                    (if (and (> (get-adc-decoded 0) min-adc-thr))
                         {
-                            (set 'unlock (bitwise-xor unlock 1))
                             (set 'feedback 2) ; beep 2x
                             (apply-mode)
                         }
@@ -326,19 +364,24 @@
     )
 )
 
-(defun handle-holding-button()
+(defun shut-down-ble()
     {
         (if (= (+ lock off) 0) ; it is locked and off?
             {
+                
                 (set 'unlock 0) ; Disable unlock on turn off
                 (apply-mode)
-                (set 'off 1) ; turn off
                 (set 'light 0) ; turn off light
                 (set 'feedback 1) ; beep feedback
+                (set 'secs-left 0)
+                (set 'off 1) ; turn off
             }
         )
     }
 )
+
+; (defun handle-holding-button()
+ 
 
 (defun reset-button()
     {
@@ -408,9 +451,9 @@
     }
 )
 
-(defun button-logic() ;revamped button pressing sstuff
+(defun button-logic() ;revamped button pressing stuff
     {
-        ; Assume button is not pressed by default
+        ; Assume the button is not pressed by default
         (var buttonold 0)
         (var last_click_time 0)
         (loopwhile t
@@ -462,7 +505,7 @@
                     {
                         ; Handle long press
                         (if is-active
-                            (handle-holding-button)
+                            (shut-down-ble)
                         )
                         (reset-button) ; reset button
                     }
@@ -521,4 +564,4 @@
 
 ; Spawn UART reading frames thread
 (spawn 150 read-frames)
-(button-logic) ; Start button logic in main thread - this will block the main thread
+(button-logic) ; Start button logic in the main thread - this will block the main thread
