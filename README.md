@@ -1,7 +1,7 @@
 # VESC M365/G30 Dash
 Allows you to connect your XIAOMI or NINEBOT display to VESC controller.
 forked from https://github.com/m365fw/vesc_m365_dash 
-## How
+## How 
 Do you want to use your Xiaomi or NineBot BLE with a VESC controller? This is the right place for you! \
 Read one of the guides below to get started.
 
