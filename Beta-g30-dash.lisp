@@ -309,7 +309,7 @@
 
 (defun turn-on-ble()
     {
-        
+        (set 'speedmode startup-mode)
         (apply-mode) ; Apply mode on start-up
         (set 'last-action-time (systime))
         (set 'feedback 1) ; beep feedback
