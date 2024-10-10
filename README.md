@@ -76,7 +76,7 @@ lights turn off randomly when riding.
     - and many more... use whatever you like.
       
 ### Unsupported VESC'S     
-- ubox lite
+- ubox alu lite
   
 #### Requirements on VESC
 Requires 6.05 VESC firmware. \
