@@ -77,7 +77,16 @@ lights turn off randomly when riding.
       
 ### Unsupported VESC'S     
 - ubox alu lite
-  
+
+### CPU USAGE 
+
+both loops in this code have yields. button-logic func has a delay in it,
+read-frames has uart-read-bytes which basically makes it run at whatever speed the dash sends commands
+
+![image](https://github.com/user-attachments/assets/8237ed5b-91e0-4885-ad24-25afcc3aca28)
+
+
+
 #### Requirements on VESC
 Requires 6.05 VESC firmware. \
 Can be found here: https://vesc-project.com/
