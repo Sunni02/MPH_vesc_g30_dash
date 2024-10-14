@@ -23,6 +23,10 @@ If you are running **VESC 6.05**, use these:
 <span style="color:rgb(97, 189, 109);">Green </span>to RX (Button) \
 revised 470R resistor between 3.3v and RX and a small capacitor on 3.3v+GND
 
+the capacitor deals with votage spikes from the vesc
+
+supposedly ( the resistor is supposed to reduce the short that occurs when pressing the button on the dash. (thats how ninebot designed that))
+
 ![image](https://github.com/user-attachments/assets/2fabf637-1208-42c0-b92d-d7dedeaddf67)
 
 
