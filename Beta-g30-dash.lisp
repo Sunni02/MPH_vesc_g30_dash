@@ -5,9 +5,9 @@
 
 ; -> User parameters (change these to your needs)
 
-(def software-adc 1) ;set to 1 to use ble throttle control set to 0 for direct wired throttle
-(def min-adc-thr 0.1) ; throttle max value
-(def min-adc-brake 0.1) ;throttle min value
+(def software-adc 1) ;set to 1 to use ble throttle control set to 0 for direct wired throttle to vesc
+(def min-adc-thr 0.1) ; throttle min value (adjusts min deadzone)
+(def min-adc-brake 0.1) ;brake min value (same here)
 (def brake-threshold 0.54) ; Brake threshold value for when brakes override throttle
 
 ; button timing adjustment 
@@ -19,8 +19,8 @@
 ; dash setup
 (def startup-mode 1) ; 1 = drive, 2 = eco, 4 = sport
 (def bShowMPH 1) ; Set to 1 for mph, 0 for km/h
-(def conv (if (= bShowMPH 1) 2.237 3.6)) ; (don't touch) meters per sec to kmh 3.6 or mph 2.23
-(def show-batt-in-idle 1) ; set to 0 for off, 1 for on
+(def conv (if (= bShowMPH 1) 2.237 3.6)) ; (don't touch!!) meters per sec to kmh 3.6 or mph 2.23
+(def show-batt-in-idle 1) ; shows batter while idling, set to 0 for off, 1 for on
 
 ; safety speed
 (def min-speed -1) ; set minimum speed to start motor
@@ -29,28 +29,28 @@
 ; Takeoff boost
 (def boost 1.2) ; set boost factor for under speed of 10 20% increases wattage 
 
-; basic battery level detection 
+; basic battery level detection (most batteys are not linear. set it to your liking.) 
 (def max-voltage 42.0) ; max battery voltage
 (def min-voltage 30.0) ; min battery voltage
 
 ;shut down timer
-(def tout 7) ;set to however many minutes you want till it automatically turns off (basic timmer turns on only when speed is 0)
+(def tout 7) ;set to however many minutes you want till it automatically turns off (basic timmer starts only when speed is 0)
 
 ; Speed modes (set speed limit kmh/mph,  watts, current scale)
-(def eco-speed (/ 10 conv))
-(def eco-current 0.6)
-(def eco-watts 400)
-(def eco-fw 0)
+(def eco-speed (/ 10 conv)) ;defines speed limit
+(def eco-current 0.6) ;defines eco current scale
+(def eco-watts 400) ;defines eco watt limit
+(def eco-fw 0) ; defines eco feild weakening amps
 
-(def drive-speed (/ 20 conv))
-(def drive-current 0.7)
-(def drive-watts 700)
-(def drive-fw 0)
+(def drive-speed (/ 20 conv)) ;speed limit
+(def drive-current 0.7) ;current scale
+(def drive-watts 700) ;watt
+(def drive-fw 0) ;feild weakening
 
-(def sport-speed (/ 30 conv))
-(def sport-current 1.0)
-(def sport-watts 900)
-(def sport-fw 25)
+(def sport-speed (/ 30 conv)) ;SL
+(def sport-current 1.0) ;CS
+(def sport-watts 900) ;watt
+(def sport-fw 25) ;fW
 
 ; -> Initialization (code begins here (touch if u dare)
 
