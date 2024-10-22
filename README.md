@@ -45,13 +45,14 @@ supposedly ( the resistor is supposed to reduce the short that occurs when press
 - [x] basic linear battery level indicator -beta
 - [x] take off boost -beta
 - [x] auto timeout shut down -beta
+- [x] brake minimum speed threshold -beta
 - [ ] easy vesc profile change
 - [ ] repair bugs
 ## Features to be added
 - [ ] not sure let me know
 
 ## Fixed to be done
-lights turn off randomly when riding.
+
 
 ## Tested on
 
