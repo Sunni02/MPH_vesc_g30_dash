@@ -8,7 +8,9 @@
 (def software-adc 1) ;set to 1 to use ble throttle control set to 0 for direct wired throttle to vesc
 (def min-adc-thr 0.1) ; throttle min value (adjusts min deadzone)
 (def min-adc-brake 0.1) ;brake min value (same here)
-(def brake-threshold 0.54) ; Brake threshold value for when brakes override throttle (after this voltage the brakes will override gas) may need adjusting when throttle doesn't work)
+(def brakes 3) ; set brake min speed 
+(def brake-threshold 0.54) ; !!!!!! Brake threshold value for when brakes override throttle (after this voltage the brakes will override gas) may need adjusting when throttle doesn't work)
+
 
 ; button timing adjustment 
 (def button-debounce-time 0.03)
@@ -132,9 +134,11 @@
                 (if (> brake 3.3)
                     (setf brake 3.3))
                 
-                ; Pass through throttle and brake to VESC
-               
-                (app-adc-override 1 brake)
+                  ; Only pass through brake if current speed is greater than 3
+            (if (> current-speed brakes)
+                (app-adc-override 1 brake) ; Apply brake if speed > 3
+                (app-adc-override 1 0)      ; Otherwise, set brake to 0
+            )
                 
                 ; Only pass through throttle if brake is not applied
                  ; Set throttle to 0 if brake is above threshold
