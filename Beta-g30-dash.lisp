@@ -3,7 +3,7 @@
 ; Guide (German): https://rollerplausch.com/threads/vesc-controller-einbau-1s-pro2-g30.6032/
 ; Tested on VESC 6.05 on G30D w/ MKS 84100HP and MP2 300A VESC
 
-; -> User parameters (change these to your needs)
+; -> User parameters (!!!warning!!! scooter adc will not work unless you adjust these parameters right... else just wire adc directly and set software-adc to 0)
 
 (def software-adc 1) ;set to 1 to use ble throttle control set to 0 for direct wired throttle to vesc
 (def min-adc-thr 0.1) ; throttle min value (adjusts min deadzone)
